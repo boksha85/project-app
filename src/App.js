@@ -60,32 +60,61 @@ export default class App extends Component {
     this.state = {
       unseenEmails: false,
       pseudopolisEmails: false,
-      mendedDrumEmails: false
+      mendedDrumEmails: false,
+      error: false,
+      errorMessage: ""
     };
   }
 
-  onChange = (event, network) => {
-    let reader = new FileReader();
-
-    reader.onloadend = (event) => {
-      let lines = event.target.result;
-      let data = lines.split("\n");
-      data.forEach(function (element) {
-        let jsonObj = JSON.parse(element);
-        mails[network].push(jsonObj.email);
-        zipCodes.push(parseUser(jsonObj).address.zip);
-      });
-      this.setState({[network]: true});
-    };
-    reader.readAsText(event.target.files[0]);
-    //override bootstrap
-    event.target.nextElementSibling.innerHTML = event.target.files[0].name;
+  dismissError = () => {
+    this.setState({error: false, errorMessage: ""});
   };
 
+  onChange = (event, network) => {
+    if (this.state[network])
+    {
+      this.setState({error: true, errorMessage: "One file already imported"});
+    } else
+    {
+
+      let reader = new FileReader();
+
+      reader.onloadend = (event) => {
+        let _this = this;
+        let lines = event.target.result;
+        let data = lines.split("\n");
+        let parsingError = false;
+        for (let element of data)
+        {
+          try
+          {
+            let jsonObj = JSON.parse(element);
+            mails[network].push(jsonObj.email);
+            zipCodes.push(parseUser(jsonObj).address.zip);
+          }
+          catch (e)
+          {
+            _this.setState({error: true, errorMessage: "Invalid json"});
+            parsingError = true;
+            break;
+          }
+        }
+        if (!parsingError)
+          this.setState({[network]: true});
+      };
+
+      reader.readAsText(event.target.files[0]);
+      //override bootstrap
+      event.target.nextElementSibling.innerHTML = event.target.files[0].name;
+
+    }
+  };
 
   render()
   {
     const isAllImported = this.state.unseenEmails && this.state.pseudopolisEmails && this.state.mendedDrumEmails;
+    const error = this.state.error;
+    const errorMessage = this.state.errorMessage;
     return (
       <div className="clearfix">
         {!isAllImported ? (
@@ -102,6 +131,12 @@ export default class App extends Component {
             <ZipCode zipCodes={zipCodes}/>
           </div>
         )}
+        {error ? (
+          <div className="alert alert-danger alert-dismissible fade show">
+            <strong>Error!</strong> {errorMessage}
+            <button type="button" className="close" data-dismiss="alert" onClick={this.dismissError}>&times;</button>
+          </div>
+        ) : null}
       </div>
 
 
