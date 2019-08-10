@@ -112,9 +112,16 @@ export default class App extends Component {
 
   render()
   {
+    let error = false;
+    let errorMessage = "";
     const isAllImported = this.state.unseenEmails && this.state.pseudopolisEmails && this.state.mendedDrumEmails;
-    const error = this.state.error;
-    const errorMessage = this.state.errorMessage;
+    if (!isAllImported)
+    {
+      error = this.state.error;
+      errorMessage = this.state.errorMessage;
+    }
+
+
     return (
       <div className="clearfix">
         {!isAllImported ? (
