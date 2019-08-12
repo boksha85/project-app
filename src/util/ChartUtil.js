@@ -12,7 +12,7 @@ const createNetworkChartObject = (network, overlapBetweenNetworks) =>
   let networkDataWithoutOverlapping = Util.calculateNetworkDataWithoutOverlapping(network.data, overlapBetweenNetworks);
   return  {label: network.name, data: networkDataWithoutOverlapping}
 };
-const getDataPointsForPseudopolisMendedDrumEmailsOverlapping = function (label, overlapData, network1DataWithoutOverlappingData,
+const getDataPointsForOverlapping = function (label, overlapData, network1DataWithoutOverlappingData,
                                                                          network2DataWithoutOverlappingData, network3DataWithoutOverlappingData) {
   let dataPoints = [];
   dataPoints.push(createDataPointRow(overlapData.length, label));
@@ -30,6 +30,7 @@ export default class ChartUtil {
     let overlapBetweenNetworks;
     let overlapPercentageBetweenNetworks;
     let network3DataWithoutOverlappingData;
+    /* Check if calculation needs to be done for 3 or 2 networks*/
     if (network3) {
       overlapBetweenNetworks = Util.calculateOverlapBetween3Arrays(network1.data, network2.data, network3.data);
       overlapPercentageBetweenNetworks = Util.calculatePercentageOfOverlapBetween3(network1.data, network2.data, network3.data);
@@ -46,7 +47,7 @@ export default class ChartUtil {
     let network2DataWithoutOverlappingData = createNetworkChartObject(network2, overlapBetweenNetworks);
 
 
-    return getDataPointsForPseudopolisMendedDrumEmailsOverlapping(label, overlapBetweenNetworks,
+    return getDataPointsForOverlapping(label, overlapBetweenNetworks,
       network1DataWithoutOverlappingData, network2DataWithoutOverlappingData, network3DataWithoutOverlappingData);
   }
 };
